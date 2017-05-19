@@ -1,0 +1,19 @@
+{
+  "name": "shop-stop",
+  "version": "1.0.0",
+  "description": "Just homework from Softuni ",
+  "main": "index.js",
+  "engine": "7.1.0",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "shop",
+    "stop"
+  ],
+  "author": "DT",
+  "license": "MIT",
+  "dependencies": {
+    "standart": "^6.1.0"
+  }
+}
