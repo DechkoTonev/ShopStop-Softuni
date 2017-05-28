@@ -33,16 +33,9 @@ module.exports = (req, res) => {
 
             let products = database.products.getAll()
 
-            console.dir(products)
-
             if (queryData.query != null){
-                products = products.filter(prod => {
-                        return database.products.findByName(queryData.query.toLowerCase(), products)
-                    }
-                )
+                products = database.products.findByName(queryData.query)
             }
-
-            console.dir(products)
 
             let content = ""
 
