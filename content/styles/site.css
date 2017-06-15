@@ -56,7 +56,7 @@ footer {
     margin: 0 auto;
 }
 
-.form-group label {
+.form-group label, select {
     font-size: 1.2em;
     width: 30%;
     display: inline-block;

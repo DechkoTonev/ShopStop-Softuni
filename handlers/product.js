@@ -1,11 +1,12 @@
 const url = require("url")
-const database = require("../config/database.js")
 const fs = require("fs")
 const path = require("path")
 const qs = require("querystring")
 const multiparty = require("multiparty")
 const shortid = require("shortid")
 
+const Product = require("../models/Product")
+const Category = require("../models/Category")
 
 module.exports = (req, res) => {
     req.pathname = req.pathname || url.parse(req.url).pathname
@@ -20,8 +21,21 @@ module.exports = (req, res) => {
                 console.log(err)
             }
 
-            res.write(data)
-            res.end()
+            Category.find().then((categories) => {
+                let replacement = '<select class="input-fields" name="category">'
+                for (let category of categories) {
+                    replacement += `$<option value="${category._id}">${category.name}</option>`
+                }
+                replacement += "</select>"
+
+                let html = data.toString().replace("{categories}", replacement)
+
+                res.writeHead(200, {
+                    "Content-Type": "text/html"
+                })
+                res.write(html)
+                res.end()
+            })
         })
     } else if (req.pathname === "/product/add" && req.method === "POST") {
         let form = new multiparty.Form();
@@ -64,14 +78,18 @@ module.exports = (req, res) => {
         });
 
         form.on('close', () => {
-            database.products.add(product);
+            Product.create(product).then((insertedProduct) => {
+                Category.findById(product.category).then(category =>{
+                    category.products.push(insertedProduct._id)
+                    category.save()
 
-            res.writeHead(302, {
-                Location: '/'
-            });
-
-            res.end();
-        });
+                    res.writeHead(302, {
+                        Location: '/'
+                    })
+                    res.end()
+                })
+            })
+        })
 
         form.parse(req);
     } else {
