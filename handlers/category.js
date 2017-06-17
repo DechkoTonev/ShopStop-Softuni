@@ -1,43 +1,27 @@
-const fs = require("fs")
-const path = require("path")
-const qs = require("querystring")
-const url = require("url")
-
 const Category = require("../models/Category")
+const Product = require("../models/Product")
 
-module.exports = (req, res) => {
-    req.pathname = req.pathname || url.parse(req.parse).pathname
+module.exports.addGet = (req, res) => {
+    res.render("category/add")
+}
 
-    if (req.pathname === "/category/add" && req.method === "GET") {
-        fs.readFile("./views/category/add.html", (err, data) => {
-            if(err){
-                console.log(err)
+module.exports.getProductsByCategory = (req, res) => {
+    let products = []
+
+    Category.findOne({name: req.params.name})
+        .populate("products")
+        .then((categoryProducts) => {
+            if(!categoryProducts){
+                res.sendStatus(404)
                 return
             }
-
-            res.writeHead(200, {
-                "Contetn-Type": "text/html"
-            })
-            res.write(data)
-            res.end()
+            res.render("category/productByCategory", {category: categoryProducts})
         })
-    } else if(req.pathname === "/category/add" && req.method === "POST"){
-        let queryData = ""
-        req.on("data", (data) =>{
-            queryData += data
-        })
+}
 
-        req.on("end", () =>{
-            let category = qs.parse(queryData)
-            Category.create(category).then(() => {
-                res.writeHead(302, {
-                    "Location": "/"
-                })
-                res.end()
-            })
-        })
-    } else {
-        return true
-    }
-
+module.exports.addPost = (req, res) => {
+    let category = req.body
+    Category.create(category).then(() => {
+        res.redirect("/")
+    })
 }
